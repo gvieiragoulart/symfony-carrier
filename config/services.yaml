@@ -19,5 +19,8 @@ services:
     App\:
         resource: '../src/'
 
+    Domain\Repository\CarrierRepositoryInterface:
+        alias: App\Repository\CarrierRepository
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
