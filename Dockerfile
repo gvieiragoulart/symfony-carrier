@@ -28,21 +28,32 @@ WORKDIR /var/www/html
 # ----------------------------
 FROM base AS production
 
-# Copiar apenas arquivos necessários
+# Copiar apenas arquivos necessários para instalar dependências
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-COPY . .
+# Copiar código fonte
+COPY --chown=www-data:www-data . .
 
-# Criar diretório para o SQLite e dar permissões
+# Criar diretórios necessários e ajustar permissões
 RUN mkdir -p /var/www/html/var/data \
+    /var/www/html/var/cache \
+    /var/www/html/var/log \
     && chown -R www-data:www-data /var/www/html/var \
     && chmod -R 775 /var/www/html/var
 
-# Executar scripts e limpar cache
+# Executar scripts e gerar cache como www-data
+USER www-data
 RUN composer run-script post-install-cmd --no-dev || true \
     && php bin/console cache:warmup --env=prod
 
+# Voltar para root para o entrypoint
+USER root
+
+# Script de inicialização
+COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+
 EXPOSE 9000
 
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]
