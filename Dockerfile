@@ -36,8 +36,8 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 COPY --chown=www-data:www-data . .
 
 # Criar diretórios necessários e ajustar permissões
-RUN mkdir -p /var/www/html/var/data \
-    /var/www/html/var/cache \
+# O banco fica em var/data_prod.db (arquivo, não pasta)
+RUN mkdir -p /var/www/html/var/cache \
     /var/www/html/var/log \
     && chown -R www-data:www-data /var/www/html/var \
     && chmod -R 775 /var/www/html/var
